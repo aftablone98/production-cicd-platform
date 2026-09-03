@@ -1,0 +1,22 @@
+name: Azure SSH Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  ssh-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AZURE_SSH_PRIVATE_KEY }}" > ~/.ssh/azure_key
+          chmod 600 ~/.ssh/azure_key
+
+      - name: Test SSH connection
+        run: |
+          ssh -o StrictHostKeyChecking=no \
+            -i ~/.ssh/azure_key \
+            ${{ secrets.AZURE_USER }}@${{ secrets.AZURE_HOST }} \
+            "hostname"

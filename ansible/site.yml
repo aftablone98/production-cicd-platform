@@ -1,0 +1,41 @@
+---
+- name: Configure Production CI/CD Azure VM
+  hosts: web
+  become: true
+
+  vars_files:
+    - vault.yml
+
+  tasks:
+    - name: Log in to GitHub Container Registry
+      community.docker.docker_login:
+        registry_url: ghcr.io
+        username: "{{ ghcr_username }}"
+        password: "{{ ghcr_token }}"
+        reauthorize: true
+      no_log: true
+
+    - name: Ensure Docker service is running
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Pull latest application image
+      community.docker.docker_image:
+        name: ghcr.io/aftablone98/production-cicd-platform:latest
+        source: pull
+
+    - name: Stop existing application container
+      community.docker.docker_container:
+        name: production-cicd-app
+        state: absent
+
+    - name: Start application container
+      community.docker.docker_container:
+        name: production-cicd-app
+        image: ghcr.io/aftablone98/production-cicd-platform:latest
+        state: started
+        restart_policy: unless-stopped
+        ports:
+          - "80:5000"

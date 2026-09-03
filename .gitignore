@@ -4,3 +4,17 @@ __pycache__/
 .pytest_cache/
 .env
 *.log
+
+
+# Terraform
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/*.tfvars
+terraform/*.tfvars.json
+
+# Ansible secrets
+ansible/vault.yml
+
+# Ansible inventory
+ansible/inventory.ini
