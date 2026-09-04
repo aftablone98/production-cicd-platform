@@ -7,7 +7,8 @@ app = Flask(__name__)
 def home():
     return jsonify({
         "message": "Production CI/CD Platform",
-        "status": "running"
+        "status": "running",
+        "version": "2.0"
     })
 
 
