@@ -2,6 +2,11 @@ name: Deploy to Azure
 
 on:
   workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Docker image tag to deploy"
+        required: true
+        default: "latest"
 
   workflow_run:
     workflows:
@@ -50,7 +55,7 @@ jobs:
         env:
           GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
-          APP_IMAGE: ghcr.io/aftablone98/production-cicd-platform:${{ github.event.workflow_run.head_sha }}
+          APP_IMAGE: ghcr.io/aftablone98/production-cicd-platform:${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.event.inputs.image_tag }}
           ANSIBLE_HOST_KEY_CHECKING: "False"
         run: |
           ansible-playbook \
