@@ -1,0 +1,47 @@
+name: Deploy to Azure
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH key
+        env:
+          SSH_PRIVATE_KEY_B64: ${{ secrets.AZURE_SSH_PRIVATE_KEY_B64 }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s' "$SSH_PRIVATE_KEY_B64" | tr -d '[:space:]' | base64 -d > ~/.ssh/azure_key
+          chmod 600 ~/.ssh/azure_key
+
+      - name: Install Ansible
+        run: |
+          python3 -m pip install ansible 
+
+      - name: Install Ansible Docker collection
+        run: |
+          ansible-galaxy collection install community.docker
+
+      - name: Create Ansible inventory
+        env:
+          AZURE_HOST: ${{ secrets.AZURE_HOST }}
+          AZURE_USER: ${{ secrets.AZURE_USER }}
+        run: |
+          cat > ansible/inventory.ini <<EOF
+          [web]
+          azure_vm ansible_host=$AZURE_HOST ansible_user=$AZURE_USER ansible_ssh_private_key_file=$HOME/.ssh/azure_key
+          EOF
+
+      - name: Run Ansible deployment
+        env:
+          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+        run: |
+          ansible-playbook \
+            -i ansible/inventory.ini \
+            ansible/site.yml
