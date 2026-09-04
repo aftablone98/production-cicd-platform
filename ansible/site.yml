@@ -3,8 +3,9 @@
   hosts: web
   become: true
 
-  vars_files:
-    - vault.yml
+  vars:
+    ghcr_username: "{{ lookup('env', 'GHCR_USERNAME') }}"
+    ghcr_token: "{{ lookup('env', 'GHCR_TOKEN') }}"
 
   tasks:
     - name: Log in to GitHub Container Registry
