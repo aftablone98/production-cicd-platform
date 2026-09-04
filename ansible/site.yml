@@ -6,6 +6,7 @@
   vars:
     ghcr_username: "{{ lookup('env', 'GHCR_USERNAME') }}"
     ghcr_token: "{{ lookup('env', 'GHCR_TOKEN') }}"
+    app_image: "{{ lookup('env', 'APP_IMAGE') }}"
 
   tasks:
     - name: Log in to GitHub Container Registry
@@ -22,9 +23,9 @@
         state: started
         enabled: true
 
-    - name: Pull latest application image
+    - name: Pull application image
       community.docker.docker_image:
-        name: ghcr.io/aftablone98/production-cicd-platform:latest
+        name: "{{ app_image }}"
         source: pull
 
     - name: Stop existing application container
@@ -35,7 +36,7 @@
     - name: Start application container
       community.docker.docker_container:
         name: production-cicd-app
-        image: ghcr.io/aftablone98/production-cicd-platform:latest
+        image: "{{ app_image }}"
         state: started
         restart_policy: unless-stopped
         ports:

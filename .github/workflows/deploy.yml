@@ -50,6 +50,7 @@ jobs:
         env:
           GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          APP_IMAGE: ghcr.io/aftablone98/production-cicd-platform:${{ github.event.workflow_run.head_sha }}
           ANSIBLE_HOST_KEY_CHECKING: "False"
         run: |
           ansible-playbook \
