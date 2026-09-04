@@ -9,9 +9,11 @@ jobs:
 
     steps:
       - name: Setup SSH key
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.AZURE_SSH_PRIVATE_KEY }}
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.AZURE_SSH_PRIVATE_KEY }}" > ~/.ssh/azure_key
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/azure_key
           chmod 600 ~/.ssh/azure_key
 
       - name: Test SSH connection
